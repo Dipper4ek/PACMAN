@@ -1,0 +1,117 @@
+import pygame
+
+# Карта рівня (0 - поніт, 1 - стіна, 2 - спеціальний об'єкт)
+
+MAP = [
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+    [1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1],
+    [1, 0, 1, 0, 1, 2, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 1, 2, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 2, 0, 2, 0, 1, 0, 2, 2, 2, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+    [1, 0, 1, 0, 1, 2, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 2, 0, 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+    [1, 0, 1, 0, 0, 2, 0, 1, 0, 2, 2, 2, 0, 2, 2, 2, 0, 2, 0, 2, 2, 0, 0, 2, 2, 2, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1],
+    [1, 0, 0, 0, 1, 2, 0, 0, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 1, 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1],
+    [1, 0, 1, 0, 1, 2, 2, 2, 0, 2, 2, 2, 0, 2, 2, 2, 0, 2, 0, 2, 1, 2, 0, 2, 0, 2, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1],
+    [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1],
+    [1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 2, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1],
+    [1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+    [1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+
+]
+
+
+TILE_SIZE = 20
+WIDTH, HEIGHT = len(MAP[0]) * TILE_SIZE, len(MAP) * TILE_SIZE + 40
+FPS = 30
+PACMAN_SPEED = TILE_SIZE // 4
+YELLOW = (255, 255, 0)
+BLACK = (0, 0, 0)
+BLUE = (0, 0, 255)
+PURPLE = (255, 0, 0)
+WHITE = (255, 255, 255)
+
+
+pygame.init()
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+clock = pygame.time.Clock()
+font = pygame.font.Font(None, 30)
+
+class Pacman:
+    def __init__(self):
+        self.x, self.y = TILE_SIZE, TILE_SIZE
+        self.dx, self.dy = PACMAN_SPEED, 0
+        self.next_dx, self.next_dy = self.dx, self.dy
+        self.radius = TILE_SIZE // 2
+        self.score = 0
+
+    def handle_keys(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            self.next_dx, self.next_dy = -PACMAN_SPEED, 0
+        elif keys[pygame.K_RIGHT]:
+            self.next_dx, self.next_dy = PACMAN_SPEED, 0
+        elif keys[pygame.K_UP]:
+            self.next_dx, self.next_dy = 0, -PACMAN_SPEED
+        elif keys[pygame.K_DOWN]:
+            self.next_dx, self.next_dy = 0, PACMAN_SPEED
+
+    def can_move(self, new_x, new_y):
+        col1, row1 = new_x // TILE_SIZE, new_y // TILE_SIZE
+        col2, row2 = (new_x + TILE_SIZE - 1) // TILE_SIZE, (new_y + TILE_SIZE - 1) // TILE_SIZE
+        return MAP[row1][col1] != 1 and MAP[row1][col2] != 1 and MAP[row2][col1] != 1 and MAP[row2][col2] != 1 and MAP[row1][col1] != 2 and MAP[row1][col2] != 2 and MAP[row2][col1] != 2 and MAP[row2][col2] != 2
+
+    def move(self):
+        if self.can_move(self.x + self.next_dx, self.y + self.next_dy):
+            self.dx, self.dy = self.next_dx, self.next_dy
+        if self.can_move(self.x + self.dx, self.y + self.dy):
+            self.x += self.dx
+            self.y += self.dy
+        
+        col, row = self.x // TILE_SIZE, self.y // TILE_SIZE
+        if MAP[row][col] == 0:
+            MAP[row][col] = -1  # Позначаємо з'їдений поніт
+            self.score += 1
+
+    def draw(self):
+        pygame.draw.circle(screen, YELLOW, (self.x + 10, self.y + 10), self.radius)
+
+
+def draw_map():
+    for row_idx, row in enumerate(MAP):
+        for col_idx, tile in enumerate(row):
+            if tile == 1:
+                pygame.draw.rect(screen, BLUE, (col_idx * TILE_SIZE, row_idx * TILE_SIZE, TILE_SIZE, TILE_SIZE))
+            elif tile == 2:
+                pygame.draw.rect(screen, PURPLE, (col_idx * TILE_SIZE, row_idx * TILE_SIZE, TILE_SIZE, TILE_SIZE))
+            elif tile == 0:  
+                pygame.draw.circle(screen, WHITE, (col_idx * TILE_SIZE + TILE_SIZE // 2, row_idx * TILE_SIZE + TILE_SIZE // 2), 3)
+
+def draw_score(score):
+    text = font.render(f"Score: {score}", True, WHITE)
+    screen.blit(text, (10, HEIGHT - 30))
+
+
+pacman = Pacman()
+
+
+running = True
+while running:
+    screen.fill(BLACK)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    draw_map()
+    pacman.handle_keys()
+    pacman.move()
+    pacman.draw()
+    draw_score(pacman.score)
+
+    pygame.display.flip()
+    clock.tick(FPS)
+
+pygame.quit()
